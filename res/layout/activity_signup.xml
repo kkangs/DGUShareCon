@@ -1,0 +1,81 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1354a5"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/imgSignUpThumbnail"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:background="@drawable/join_pic" />
+
+    </FrameLayout>
+
+    <EditText
+        android:id="@+id/edtSignUpEmail"
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/group_top"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:textColor="#fff"
+        android:padding="5dp"
+        android:textSize="7pt" />
+
+    <EditText
+        android:id="@+id/edtSignUpPassword"
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/group_row"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:textColor="#fff"
+        android:padding="5dp"
+        android:textSize="7pt" />
+
+    <EditText
+        android:id="@+id/edtSignUpPasswordRepeat"
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/group_row"
+        android:hint="Confirm Password"
+        android:inputType="textPassword"
+        android:padding="5dp"
+        android:textSize="7pt" />
+
+    <EditText
+        android:id="@+id/edtSignUpName"
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/group_bottom"
+        android:hint="Name"
+        android:inputType="text"
+        android:textColor="#fff"
+        android:padding="5dp"
+        android:textSize="7pt" />
+
+    <Button
+        android:id="@+id/btnSignUp"
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:layout_margin="10dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/btn_signup"
+        android:text="Sign Up"
+        android:textColor="#fff"
+        android:textSize="10pt" />
+
+</LinearLayout>
