@@ -30,7 +30,7 @@ public class ChatHeadService extends Service  {
 	WindowManager.LayoutParams params;
 	
 	
-	private String email = null;
+	private String email;
 	
 	long touchTime;
 
@@ -123,10 +123,10 @@ public class ChatHeadService extends Service  {
 								
 								BitmapFactory.Options sizeOptions = new BitmapFactory.Options();
 								sizeOptions.inJustDecodeBounds = true;
-								sizeOptions.inSampleSize = 16;
+								sizeOptions.inSampleSize = 4;
 								
 								int dstWidth = 90;
-								int dstHeight = 90;
+								int dstHeight = 80;
 								Bitmap captured = BitmapFactory.decodeFile("/sdcard/img.png");
 								Bitmap resized = Bitmap.createScaledBitmap(captured, dstWidth, dstHeight, true);
 								

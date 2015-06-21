@@ -220,7 +220,7 @@ public class PeerConnectionWrapper implements SdpObserver, Observer {
 			// 현재 로컬 세션을 가지고 있으면 스트림 송/수신 요청을 전송합니다.
 			if(state == IceGatheringState.COMPLETE && connection.signalingState() == SignalingState.HAVE_LOCAL_OFFER) {
 				offerSession = connection.getLocalDescription();
-				socketThread.sendOffer(connection.getLocalDescription().description);
+				socketThread.sendOffer(socketId, connection.getLocalDescription().description);
 			}
 			break;
 		case Answerer:

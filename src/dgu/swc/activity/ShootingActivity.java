@@ -154,21 +154,9 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				Toast.makeText(getApplicationContext(), "아이콘을 생성하고 액티비티가 닫힙니다.",Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "아이콘 생성",Toast.LENGTH_SHORT).show();
 				//Log.e("a", "aa");
 				startService(intent);
-				
-				Thread startThread = new Thread() {
-					
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						
-						finish();
-					}
-				};
-				startThread.start();
-				
 				//chathead.(new intent(getApplication(),FloatingHandler.class));
 
 			}
@@ -199,12 +187,10 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 		mAudioTrack = factory.createAudioTrack(String.format("%sa", TAG), mAudioSource); // 인자는 레이블입니다.
 
 		// 비디오 트랙 초기화
-		
-		mVideoCapturer = VideoCapturer.create("Camera 1, Facing front, Orientation 270");
+		mVideoCapturer = VideoCapturer.create("Camera 1, Facing front, Orientation 270"); 
 		mVideoSource = factory.createVideoSource(mVideoCapturer, new MediaConstraints());
 		mVideoTrack = factory.createVideoTrack(String.format("%sv", TAG), mVideoSource); // 인자는 레이블입니다.
-		
-				
+
 		// 카메라 뷰에 렌더러를 장착
 		VideoRendererGui.setView(mCameraView, new Runnable() {
 
@@ -215,58 +201,47 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 		});
 
 		// 카메라뷰를 액티비티 화면에 맞게 설정합니다.
+		mCameraView.initialize(this);
 
-			mCameraView.initialize(this);
-	
-			// 화면을 4개로 분할합니다. 인자값은 차례대로 top, left, width(%), height(%)입니다.
-			// 로컬 비디오는 좌상에, 원격 비디오는 우상, 좌하, 우하에 배치합니다.
-			localRenderer = VideoRendererGui.create(2, 2, 47, 40, ScalingType.SCALE_FILL, true);
-			
-			remoteRenderers[0] = VideoRendererGui.create(51, 2, 47, 40, ScalingType.SCALE_FILL, true);
-			remoteRenderers[1] = VideoRendererGui.create(2, 44, 47, 40, ScalingType.SCALE_FILL, true);
-			remoteRenderers[2] = VideoRendererGui.create(51, 44, 47, 40, ScalingType.SCALE_FILL, true);
-	
-			// 로컬 비디오를 렌더러에 출력합니다.
-			mVideoTrack.addRenderer(new VideoRenderer(localRenderer));
-	
-			// 원격지에 비디오와 오디오를 전송할 수 있도록 스트림에 비디오 오디오 트랙을 추가합니다.
-			mLocalStream.addTrack(mAudioTrack);
-			mLocalStream.addTrack(mVideoTrack);
-	
-			// 아이스 서버를 초기화합니다. 현재는 구글에서 제공하는 stun서버만 사용합니다.
-			// turn서버를 추가하려면 양식은 "turn:<서버아아피>:<서버포트>" 형태로 추가하세요.
-			iceServerList = new ArrayList<IceServer>();
-			iceServerList.add(new IceServer("stun:stun.l.google.com:19302"));
-	
-			// 미디어 스트림 전송 방식에 보안 옵션을 추가합니다.
-			mediaConstraints = new MediaConstraints();
-			mediaConstraints.optional.add(new KeyValuePair("DtlsSrtpKeyAgreement", "true"));
-	
-			// 원격 접속에 사용될 각 커넥션을 초기화 합니다.
-			// 래퍼 클래스 자체가 콜백이기 때문에 아래에서 인자로 사용됩니다.
-			for(int i = 0; i < connections.length; i++) {
-				connections[i] = new PeerConnectionWrapper(); // 커넥션과 콜백 함수를 연결하기 위한 래퍼 클래스 생성
-				// 커넥션 생성 및 커넥션에 콜백함수 등록
-				PeerConnection connection = factory.createPeerConnection(iceServerList, mediaConstraints, connections[i]);
-				connection.addStream(mLocalStream); // 로컬 스트림 추가
-				connections[i].setConnection(connection); // 콜백 함수에 커넥션 등록
-				connections[i].setRenderer(remoteRenderers[i]); // 콜백 함수에 렌더러 등록
-				connections[i].setLocalStream(mLocalStream);
-			}
-	
-			// 현재 액티비티를 이벤트 리스너로 추가합니다.
-			socketThread.addListener(this);
-		
-		
+		// 화면을 4개로 분할합니다. 인자값은 차례대로 top, left, width(%), height(%)입니다.
+		// 로컬 비디오는 좌상에, 원격 비디오는 우상, 좌하, 우하에 배치합니다.
+		localRenderer = VideoRendererGui.create(2, 2, 47, 40, ScalingType.SCALE_FILL, true);
+		remoteRenderers[0] = VideoRendererGui.create(51, 2, 47, 40, ScalingType.SCALE_FILL, true);
+		remoteRenderers[1] = VideoRendererGui.create(2, 44, 47, 40, ScalingType.SCALE_FILL, true);
+		remoteRenderers[2] = VideoRendererGui.create(51, 44, 47, 40, ScalingType.SCALE_FILL, true);
 
+		// 로컬 비디오를 렌더러에 출력합니다.
+		mVideoTrack.addRenderer(new VideoRenderer(localRenderer));
+
+		// 원격지에 비디오와 오디오를 전송할 수 있도록 스트림에 비디오 오디오 트랙을 추가합니다.
+		mLocalStream.addTrack(mAudioTrack);
+		mLocalStream.addTrack(mVideoTrack);
+
+		// 아이스 서버를 초기화합니다. 현재는 구글에서 제공하는 stun서버만 사용합니다.
+		// turn서버를 추가하려면 양식은 "turn:<서버아아피>:<서버포트>" 형태로 추가하세요.
+		iceServerList = new ArrayList<IceServer>();
+		iceServerList.add(new IceServer("stun:stun.l.google.com:19302"));
+
+		// 미디어 스트림 전송 방식에 보안 옵션을 추가합니다.
+		mediaConstraints = new MediaConstraints();
+		mediaConstraints.optional.add(new KeyValuePair("DtlsSrtpKeyAgreement", "true"));
+
+		// 원격 접속에 사용될 각 커넥션을 초기화 합니다.
+		// 래퍼 클래스 자체가 콜백이기 때문에 아래에서 인자로 사용됩니다.
+		for(int i = 0; i < connections.length; i++) {
+			connections[i] = new PeerConnectionWrapper(); // 커넥션과 콜백 함수를 연결하기 위한 래퍼 클래스 생성
+			// 커넥션 생성 및 커넥션에 콜백함수 등록
+			PeerConnection connection = factory.createPeerConnection(iceServerList, mediaConstraints, connections[i]);
+			connection.addStream(mLocalStream); // 로컬 스트림 추가
+			connections[i].setConnection(connection); // 콜백 함수에 커넥션 등록
+			connections[i].setRenderer(remoteRenderers[i]); // 콜백 함수에 렌더러 등록
+			connections[i].setLocalStream(mLocalStream);
+		}
+
+		// 현재 액티비티를 이벤트 리스너로 추가합니다.
+		socketThread.addListener(this);
 	}
 
-	@Override
-	public void onResume() {
-
-		super.onResume();
-	}
-	
 	/**
 	 * 액티비티에 있는 버튼이 눌렸을 때 호출합니다.
 	 */

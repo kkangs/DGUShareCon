@@ -227,9 +227,10 @@ public class SocketService {
 	 * 
 	 * @param sdp 세션 정보(IP 주소, 중개 서버 리스트, 비디오 소켓, 오디오 소켓, 코덱, 보안 등등...)
 	 */
-	public void sendOffer(final String sdp) {
+	public void sendOffer(final String socketId, final String sdp) {
 		try {
 			JSONObject data = new JSONObject();
+			data.put("socketId", socketId);
 			data.put("sdp", sdp);
 
 			socket.emit("offer", data);
@@ -368,7 +369,7 @@ public class SocketService {
 
 			switch(code) {
 			case SocketEvent.SUCCESS:
-				eventHandler.obtainMessage(event, code).sendToTarget();
+				eventHandler.obtainMessage(event, code, 0, data).sendToTarget();
 				break;
 			case SocketEvent.FAILURE:
 				eventHandler.obtainMessage(event, code, 0, message).sendToTarget();
