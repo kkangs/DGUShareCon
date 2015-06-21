@@ -1,6 +1,7 @@
 package dgu.swc.activity;
 import java.util.ArrayList;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -29,6 +30,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import dgu.swc.main.Global;
 import dgu.swc.mobilestreamer.R;
 import dgu.swc.webrtc.CameraView;
 import dgu.swc.webrtc.PeerConnectionType;
@@ -70,7 +72,7 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 	private Button startService;
 	private Button stopService;
 	private Intent intent;
-	
+
 	/**
 	 * WebRTC를 사용할 때 커넥션을 생성하는 팩토리
 	 */
@@ -135,6 +137,8 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_shooting);
+		intent = new Intent(getApplication(), ChatHeadService.class);
+		intent.putExtra("email", Global.getEmail());
 
 		// 뷰 초기화 작업 실행
 		edtChannel = (EditText) findViewById(R.id.edtChannel);
@@ -146,7 +150,7 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 
 		startService = (Button) findViewById(R.id.startService);
 		startService.setOnClickListener( new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
@@ -154,25 +158,25 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 				//Log.e("a", "aa");
 				startService(intent);
 				//chathead.(new intent(getApplication(),FloatingHandler.class));
-				
+
 			}
 		});
-		
+
 		/*
 		stopService = (Button) findViewById(R.id.stoptService);
 		stopService.setOnClickListener( new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				stopService(intent);
-				
+
 			}
 		});
-		*/
-	
-		
-		
+		 */
+
+
+
 		// WebRTC 라이브러리 초기화, EGLContext는 하드웨어 가속에 사용한다고 합니다.
 		PeerConnectionFactory.initializeAndroidGlobals(this, true, true, true, VideoRendererGui.getEGLContext());
 		factory = new PeerConnectionFactory(); // 피어 커넥션 팩토리 생성
@@ -285,7 +289,7 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 			onCreateChannel(code, data);
 			break;
 		case SocketEvent.MSG_ENTER_CHANNEL:
-			onEnterChannel(code, data);
+			onEnterChannel(code, (JSONObject)data);
 			break;
 		case SocketEvent.MSG_RECEIVE_OFFER:
 			onReceiveOffer(code, (JSONObject)data);
@@ -319,30 +323,38 @@ public class ShootingActivity extends Activity implements OnClickListener, Event
 	 * @param code 결과 코드
 	 * @param data 에러 메시지
 	 */
-	private void onEnterChannel(int code, Object data) {
-		switch(code) {
-		case SocketEvent.SUCCESS:
-			Toast.makeText(this, "방에 접속하였습니다.", Toast.LENGTH_SHORT).show();
+	private void onEnterChannel(int code, JSONObject data) {
+		try {
+			String socketId = data.getString("socketId");
+			String message = data.getString("message");
 
-			// 커넥션 배열에서 접속 가능한 커넥션을 찾습니다.
-			for(int i = 0; i < connections.length; i++) {
-				PeerConnection connection = connections[i].getConnection();
+			switch(code) {
+			case SocketEvent.SUCCESS:
+				Toast.makeText(this, "방에 접속하였습니다.", Toast.LENGTH_SHORT).show();
 
-				// 로컬 스트림 정보와 원격 스트림 정보가 없으면 사용 가능한 커넥션입니다.
-				if(connection.getLocalDescription() == null && connection.getRemoteDescription() == null) {
-					// 방에 접속하자마자 원격 사용자들에게 스트림 수신 요청을 보내기 때문에 타입은 "요청자"입니다.
-					connections[i].setType(PeerConnectionType.Offerer);
-					// 원격 사용자들에게 보낼 로컬 스트림 정보를 생성합니다.
-					connection.createOffer(connections[i], new MediaConstraints());
-					return;
+				// 커넥션 배열에서 접속 가능한 커넥션을 찾습니다.
+				for(int i = 0; i < connections.length; i++) {
+					PeerConnection connection = connections[i].getConnection();
+
+					// 로컬 스트림 정보와 원격 스트림 정보가 없으면 사용 가능한 커넥션입니다.
+					if(connection.getLocalDescription() == null && connection.getRemoteDescription() == null) {
+						// 방에 접속하자마자 원격 사용자들에게 스트림 수신 요청을 보내기 때문에 타입은 "요청자"입니다.
+						connections[i].setType(PeerConnectionType.Offerer);
+						connections[i].setSocketId(socketId);
+						// 원격 사용자들에게 보낼 로컬 스트림 정보를 생성합니다.
+						connection.createOffer(connections[i], new MediaConstraints());
+						return;
+					}
 				}
-			}
 
-			Toast.makeText(this, "사용 가능한 커넥션이 없습니다..", Toast.LENGTH_SHORT).show();
-			break;
-		case SocketEvent.FAILURE:
-			Toast.makeText(this, (String)data, Toast.LENGTH_SHORT).show();
-			break;
+				Toast.makeText(this, "사용 가능한 커넥션이 없습니다..", Toast.LENGTH_SHORT).show();
+				break;
+			case SocketEvent.FAILURE:
+				Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+				break;
+			}
+		} catch(JSONException e) {
+			Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 		}
 	}
 
