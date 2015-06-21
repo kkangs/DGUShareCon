@@ -30,7 +30,7 @@ public class ChatHeadService extends Service  {
 	WindowManager.LayoutParams params;
 	
 	
-	private String email;
+	private String email = null;
 	
 	long touchTime;
 
