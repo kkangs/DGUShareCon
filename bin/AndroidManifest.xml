@@ -68,7 +68,12 @@
         </activity>
         <activity
             android:name="dgu.swc.activity.ShootingActivity"
-            android:label="@string/title_activity_shooting" >
+            android:label="@string/title_activity_shooting"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
+        <activity
+            android:name="dgu.swc.activity.ImageViewActivity"
+            android:theme="@style/FullscreenTheme" >
         </activity>
 
 
